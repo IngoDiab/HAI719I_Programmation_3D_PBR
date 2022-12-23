@@ -86,7 +86,12 @@ void draw() {
 		Material* material = inst.material;
 		Mesh* mesh = inst.mesh;
 		material->bind();
-		material->setMatrices(Context::camera.projection, Context::camera.view, inst.matrix);
+		glm::mat4 _modelMatrix = inst.matrix * glm::translate(mat4(1.0f) , inst.mPosition) 
+											 * glm::rotate<float>(mat4(1.0f), inst.mRotation.x, vec3(1,0,0))
+											 * glm::rotate<float>(mat4(1.0f), inst.mRotation.y, vec3(0,1,0))
+											 * glm::rotate<float>(mat4(1.0f), inst.mRotation.z, vec3(0,0,1))
+											 * glm::scale<float>(mat4(1.0f), inst.mScale);
+		material->setMatrices(Context::camera.projection, Context::camera.view, _modelMatrix);
 		mesh->draw();
 	}
 }
@@ -98,8 +103,6 @@ void display() {
 	glFlush();
 	glutSwapBuffers();
 }
-
-
 
 
 int main (int argc, char ** argv) {
@@ -124,7 +127,6 @@ int main (int argc, char ** argv) {
 	std::string path(argv[1]);
 	loadDataWithAssimp(path);
 	beforeLoop();
-
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	glutMainLoop();

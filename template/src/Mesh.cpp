@@ -13,18 +13,26 @@ Mesh::~Mesh() {
 }
 
 void Mesh::draw() {
+	if (positionsBuffer != 0) {
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+	}
+	if (normalsBuffer != 0) {
 	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, normalsBuffer);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+	}
+	if (tangentsBuffer != 0) {
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, tangentsBuffer);
 	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+	}
+	if (uv0Buffer != 0) {
 	glEnableVertexAttribArray(3);
 	glBindBuffer(GL_ARRAY_BUFFER, uv0Buffer);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);// 3 because assimp 
+	}
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsBuffer);
 	glDrawElements(GL_TRIANGLES, 3 * mNumFaces, GL_UNSIGNED_INT, (void*)0);
 }

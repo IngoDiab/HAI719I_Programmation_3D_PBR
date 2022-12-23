@@ -16,6 +16,9 @@
 #include <glm/gtx/string_cast.hpp>
 
 
+#include "Skybox.h"
+#include "MaterialSkybox.h"
+
 
 // Implementation for your own log stream callback
 void myCallback( const char *msg, char *userData) {
@@ -124,7 +127,19 @@ void loadDataWithAssimp(const std::string& path) {
 			std::cerr << "Material " << i << " : " << name.C_Str() << std::endl;
 			Material* glMaterial = createMaterial(material);
 			Context::materials.push_back(glMaterial);
-			glMaterial->init();
+
+			//Initialize material data
+			glMaterial->mShaderType = SHADER_TYPE::CUSTOM_PBR;
+			glMaterial->mMaterialData.mAmbient = {1.0,1.0,1.0};
+			//glMaterial->mMaterialData.mDiffuse = {0, 0.6078,0.4667};
+			glMaterial->mMaterialData.mDiffuse = {1.0,1.0,1.0};
+			//glMaterial->mMaterialData.mSpecular = {0, 0.6078,0.4667};
+			glMaterial->mMaterialData.mSpecular = {1.0, 1.0, 1.0};
+			glMaterial->mMaterialData.mShininess = 9;
+			glMaterial->mMaterialData.mRefractiveIndex = 1.33;
+			glMaterial->mMaterialData.mAOValue = 2;
+
+			glMaterial->init(path, ".jpg");
 		}
 		std::cerr << Context::materials.size() << " materials loaded" << std::endl;
 
@@ -145,6 +160,10 @@ void loadDataWithAssimp(const std::string& path) {
 				std::cerr << "mesh-" << meshIndex << ";material-" << scene->mMeshes[meshIndex]->mMaterialIndex << std::endl;
 				Instance inst;
 				inst.matrix = model;
+				//DamagedHelmet is reversed otherwise
+				inst.mRotation.y = 135;
+				inst.mRotation.z = 45;
+
 				inst.mesh = Context::meshes[meshIndex];
 				inst.material = Context::materials[scene->mMeshes[meshIndex]->mMaterialIndex];
 				Context::instances.push_back(inst);
@@ -158,4 +177,28 @@ void loadDataWithAssimp(const std::string& path) {
 		std::cerr << Context::instances.size() << " instances loaded" << std::endl;
 		delete stream;
 		importer.FreeScene();
+
+		//Load point lights
+		//Context::mPointLights[0] = PointLight(true, vec3(1.5,-0.5,0), vec3(1,1,1), 1);
+		Context::mPointLights[0] = PointLight(true, vec3(1.5,0,0.5), vec3(0,1,.5),2);
+		Context::mPointLights[1] = PointLight(true, vec3(-1.5,0,-0.5), vec3(1,0,.5),2);
+		// Context::mPointLights[0] = PointLight(true, vec3(5,0,5), vec3(1,0,0));
+		// Context::mPointLights[1] = PointLight(true, vec3(-5,0,-5), vec3(0,0,1));
+
+		//Create skybox Mesh/Material
+		MaterialSkybox* _materialSkybox = new MaterialSkybox();
+		_materialSkybox->init("../data/Skybox/Space/",".png");
+		Skybox* _meshSkybox = new Skybox();
+		_meshSkybox->Create();
+		//Load skybox Mesh/Material
+		Context::materials.push_back(_materialSkybox);
+		Context::meshes.push_back(_meshSkybox);
+		//Create cube Instance
+		Instance _skybox;
+		_skybox.mScale = vec3(100, 100, 100);
+		_skybox.material = _materialSkybox;
+		_skybox.mesh = _meshSkybox;
+		//Load cube Instance
+		Context::instances.push_back(_skybox);
+		Context::mSkybox = _skybox;
 	}

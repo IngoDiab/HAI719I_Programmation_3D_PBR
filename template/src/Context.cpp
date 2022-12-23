@@ -14,6 +14,8 @@ void reshape(int w, int h) {
 
 
 Camera Context::camera;
+Instance Context::mSkybox;
+std::vector<PointLight> Context::mPointLights = std::vector<PointLight>(NB_POINT_LIGHTS);
 std::vector<Instance> Context::instances;
 std::vector<Material*> Context::materials;
 std::vector<Mesh*> Context::meshes;
